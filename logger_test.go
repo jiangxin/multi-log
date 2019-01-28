@@ -104,22 +104,23 @@ func TestLoggerNoLogfile(t *testing.T) {
 	}(tmpdir)
 
 	o := Options{
-		Verbose:  4,
-		LogLevel: "warning",
-		LogFile:  "",
-		stderr:   &buffer,
+		Verbose:     4,
+		LogLevel:    "warning",
+		LogFile:     "",
+		stderr:      &buffer,
+		ForceColors: true,
 	}
 
 	demoLogger(o)
 
-	expect = `level=trace msg="trace #1"
-level=debug msg="debug #2"
-level=info msg="info #3"
-level=warning msg="warn #4"
-level=warning msg="warning #5"
-level=error msg="error #6"
-level=fatal msg="fatal #7"
-`
+	expect = "" +
+		"\x1b[1;34mTRACE:\x1b[0m trace #1\n" +
+		"\x1b[1;34mDEBUG:\x1b[0m debug #2\n" +
+		"\x1b[1;36mINFO:\x1b[0m info #3\n" +
+		"\x1b[1;33mWARNING:\x1b[0m warn #4\n" +
+		"\x1b[1;33mWARNING:\x1b[0m warning #5\n" +
+		"\x1b[1;31mERROR:\x1b[0m error #6\n" +
+		"\x1b[1;31mFATAL:\x1b[0m fatal #7\n"
 	assert.Equal(expect, buffer.String())
 }
 
@@ -153,10 +154,10 @@ func TestRelativeLoggerFile(t *testing.T) {
 
 	demoLogger(o)
 
-	expect = `time="<time>" level=warning msg="warn #4"
-time="<time>" level=warning msg="warning #5"
-time="<time>" level=error msg="error #6"
-time="<time>" level=fatal msg="fatal #7"
+	expect = `WARN[<time>]: warn #4
+WARN[<time>]: warning #5
+ERRO[<time>]: error #6
+FATA[<time>]: fatal #7
 `
 	relTmpfile := filepath.Join(tmpdir, "log", "log.txt")
 	data, err := ioutil.ReadFile(relTmpfile)
@@ -187,17 +188,17 @@ func TestLoggerfDefault(t *testing.T) {
 
 	demoLoggerf(o)
 
-	expect = `level=warning msg="warn #4"
-level=warning msg="warning #5"
-level=error msg="error #6"
-level=fatal msg="fatal #7"
+	expect = `WARNING: warn #4
+WARNING: warning #5
+ERROR: error #6
+FATAL: fatal #7
 `
 	assert.Equal(expect, buffer.String())
 
-	expect = `time="<time>" level=warning msg="warn #4"
-time="<time>" level=warning msg="warning #5"
-time="<time>" level=error msg="error #6"
-time="<time>" level=fatal msg="fatal #7"
+	expect = `WARN[<time>]: warn #4
+WARN[<time>]: warning #5
+ERRO[<time>]: error #6
+FATA[<time>]: fatal #7
 `
 	data, err := ioutil.ReadFile(tmpLog)
 	assert.Nil(err)
@@ -229,18 +230,18 @@ func TestLoggerfCustom(t *testing.T) {
 
 	demoLoggerf(o)
 
-	expect = `level=info msg="info #3"
-level=warning msg="warn #4"
-level=warning msg="warning #5"
-level=error msg="error #6"
-level=fatal msg="fatal #7"
+	expect = `INFO: info #3
+WARNING: warn #4
+WARNING: warning #5
+ERROR: error #6
+FATAL: fatal #7
 `
 	assert.Equal(expect, buffer.String())
 
-	expect = `time="<time>" level=warning msg="warn #4"
-time="<time>" level=warning msg="warning #5"
-time="<time>" level=error msg="error #6"
-time="<time>" level=fatal msg="fatal #7"
+	expect = `WARN[<time>]: warn #4
+WARN[<time>]: warning #5
+ERRO[<time>]: error #6
+FATA[<time>]: fatal #7
 `
 	data, err := ioutil.ReadFile(tmpLog)
 	assert.Nil(err)
@@ -270,17 +271,17 @@ func TestLoggerDefault(t *testing.T) {
 
 	demoLogger(o)
 
-	expect = `level=warning msg="warn #4"
-level=warning msg="warning #5"
-level=error msg="error #6"
-level=fatal msg="fatal #7"
+	expect = `WARNING: warn #4
+WARNING: warning #5
+ERROR: error #6
+FATAL: fatal #7
 `
 	assert.Equal(expect, buffer.String())
 
-	expect = `time="<time>" level=warning msg="warn #4"
-time="<time>" level=warning msg="warning #5"
-time="<time>" level=error msg="error #6"
-time="<time>" level=fatal msg="fatal #7"
+	expect = `WARN[<time>]: warn #4
+WARN[<time>]: warning #5
+ERRO[<time>]: error #6
+FATA[<time>]: fatal #7
 `
 	data, err := ioutil.ReadFile(tmpLog)
 	assert.Nil(err)
@@ -312,20 +313,20 @@ func TestLoggerCustom(t *testing.T) {
 
 	demoLogger(o)
 
-	expect = `level=debug msg="debug #2"
-level=info msg="info #3"
-level=warning msg="warn #4"
-level=warning msg="warning #5"
-level=error msg="error #6"
-level=fatal msg="fatal #7"
+	expect = `DEBUG: debug #2
+INFO: info #3
+WARNING: warn #4
+WARNING: warning #5
+ERROR: error #6
+FATAL: fatal #7
 `
 	assert.Equal(expect, buffer.String())
 
-	expect = `time="<time>" level=info msg="info #3"
-time="<time>" level=warning msg="warn #4"
-time="<time>" level=warning msg="warning #5"
-time="<time>" level=error msg="error #6"
-time="<time>" level=fatal msg="fatal #7"
+	expect = `INFO[<time>]: info #3
+WARN[<time>]: warn #4
+WARN[<time>]: warning #5
+ERRO[<time>]: error #6
+FATA[<time>]: fatal #7
 `
 	data, err := ioutil.ReadFile(tmpLog)
 	assert.Nil(err)
@@ -355,17 +356,17 @@ func TestLoggerlnDefault(t *testing.T) {
 
 	demoLoggerln(o)
 
-	expect = `level=warning msg="warn # 4"
-level=warning msg="warning # 5"
-level=error msg="error # 6"
-level=fatal msg="fatal # 7"
+	expect = `WARNING: warn # 4
+WARNING: warning # 5
+ERROR: error # 6
+FATAL: fatal # 7
 `
 	assert.Equal(expect, buffer.String())
 
-	expect = `time="<time>" level=warning msg="warn # 4"
-time="<time>" level=warning msg="warning # 5"
-time="<time>" level=error msg="error # 6"
-time="<time>" level=fatal msg="fatal # 7"
+	expect = `WARN[<time>]: warn # 4
+WARN[<time>]: warning # 5
+ERRO[<time>]: error # 6
+FATA[<time>]: fatal # 7
 `
 	data, err := ioutil.ReadFile(tmpLog)
 	assert.Nil(err)
@@ -397,18 +398,18 @@ func TestLoggerlnCustom(t *testing.T) {
 
 	demoLoggerln(o)
 
-	expect = `level=trace msg="trace # 1"
-level=debug msg="debug # 2"
-level=info msg="info # 3"
-level=warning msg="warn # 4"
-level=warning msg="warning # 5"
-level=error msg="error # 6"
-level=fatal msg="fatal # 7"
+	expect = `TRACE: trace # 1
+DEBUG: debug # 2
+INFO: info # 3
+WARNING: warn # 4
+WARNING: warning # 5
+ERROR: error # 6
+FATAL: fatal # 7
 `
 	assert.Equal(expect, buffer.String())
 
-	expect = `time="<time>" level=error msg="error # 6"
-time="<time>" level=fatal msg="fatal # 7"
+	expect = `ERRO[<time>]: error # 6
+FATA[<time>]: fatal # 7
 `
 	data, err := ioutil.ReadFile(tmpLog)
 	assert.Nil(err)

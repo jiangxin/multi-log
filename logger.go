@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/jiangxin/multi-log/formatter"
 	"github.com/jiangxin/multi-log/path"
 	"github.com/sirupsen/logrus"
 )
@@ -17,6 +18,7 @@ type Options struct {
 	LogRotateSize int64
 	LogFile       string
 	LogLevel      string
+	ForceColors   bool
 
 	stderr   io.Writer
 	exitFunc func(int)
@@ -71,10 +73,11 @@ func Init(options Options) {
 
 	mLogger.StdLogger = &logrus.Logger{
 		Out: o.stderr,
-		Formatter: &logrus.TextFormatter{
+		Formatter: &formatter.TextFormatter{
 			DisableTimestamp:       true,
 			FullTimestamp:          false,
 			DisableLevelTruncation: true,
+			ForceColors:            o.ForceColors,
 		},
 
 		Hooks:        make(logrus.LevelHooks),
@@ -112,7 +115,7 @@ func Init(options Options) {
 		} else {
 			mLogger.FileLogger = &logrus.Logger{
 				Out: file,
-				Formatter: &logrus.TextFormatter{
+				Formatter: &formatter.TextFormatter{
 					DisableTimestamp:       false,
 					FullTimestamp:          true,
 					DisableLevelTruncation: false,
