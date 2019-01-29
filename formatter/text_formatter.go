@@ -125,24 +125,38 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 }
 
 // GetColors gets colors for set and reset
-func (f *TextFormatter) GetColors(level logrus.Level) (colorSet, colorReset string) {
-	var levelColor int
+func (f *TextFormatter) GetColors(levelName string) (colorSet, colorReset string) {
+	var (
+		levelColor int
+		level      logrus.Level
+		err        error
+	)
 
 	if !f.IsColored() {
 		return
 	}
 
-	switch level {
-	case logrus.DebugLevel, logrus.TraceLevel:
-		levelColor = blue
-	case logrus.WarnLevel:
-		levelColor = yellow
-	case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
-		levelColor = red
-	case logrus.InfoLevel:
-		levelColor = cyan
-	default:
-		levelColor = gray
+	level, err = logrus.ParseLevel(levelName)
+	if err == nil {
+		switch level {
+		case logrus.DebugLevel, logrus.TraceLevel:
+			levelColor = blue
+		case logrus.WarnLevel:
+			levelColor = yellow
+		case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
+			levelColor = red
+		case logrus.InfoLevel:
+			levelColor = cyan
+		default:
+			levelColor = gray
+		}
+	} else {
+		switch strings.ToLower(levelName) {
+		case "note":
+			levelColor = cyan
+		default:
+			levelColor = gray
+		}
 	}
 
 	colorSet = fmt.Sprintf("\x1b[1;%dm", levelColor)
@@ -157,7 +171,7 @@ func (f *TextFormatter) printEntry(b *bytes.Buffer, entry *logrus.Entry) {
 		colorSet, colorReset string
 	)
 
-	colorSet, colorReset = f.GetColors(entry.Level)
+	colorSet, colorReset = f.GetColors(entry.Level.String())
 
 	levelText = strings.ToUpper(entry.Level.String())
 	if !f.DisableLevelTruncation {
