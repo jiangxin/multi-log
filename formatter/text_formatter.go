@@ -28,10 +28,13 @@ const (
 	defaultTimestampFormat = time.RFC3339
 )
 
-var baseTimestamp time.Time
+// Global variables
+var (
+	BaseTimestamp time.Time
+)
 
 func init() {
-	baseTimestamp = time.Now()
+	BaseTimestamp = time.Now()
 }
 
 // TextFormatter formats logs into text
@@ -204,7 +207,7 @@ func (f *TextFormatter) printEntry(b *bytes.Buffer, entry *logrus.Entry) {
 		fmt.Fprintf(b, "%s%s[%04d]:%s %s%*s",
 			colorSet,
 			levelText,
-			int(entry.Time.Sub(baseTimestamp)/time.Second),
+			int(entry.Time.Sub(BaseTimestamp)/time.Second),
 			colorReset,
 			caller,
 			w,
