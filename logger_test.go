@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -435,6 +436,12 @@ func TestFatalPanic(t *testing.T) {
 	}
 
 	Init(o)
+
+	wfLogger := WithFields(map[string]interface{}{
+		"size":   "10MB",
+		"period": 2 * time.Minute,
+	})
+
 	env := os.Getenv("TEST_LOGGER_CRASH")
 	if env != "" {
 		switch env {
@@ -450,6 +457,18 @@ func TestFatalPanic(t *testing.T) {
 			Panic("called ", env)
 		case "panicln":
 			Panicln("called", env)
+		case "with-fields-fatalf":
+			wfLogger.Fatalf("called %s", env)
+		case "with-fields-fatal":
+			wfLogger.Fatal("called ", env)
+		case "with-fields-fatalln":
+			wfLogger.Fatalln("called", env)
+		case "with-fields-panicf":
+			wfLogger.Panicf("called %s", env)
+		case "with-fields-panic":
+			wfLogger.Panic("called ", env)
+		case "with-fields-panicln":
+			wfLogger.Panicln("called", env)
 		}
 		return
 	}
@@ -460,7 +479,20 @@ func TestFatalPanic(t *testing.T) {
 		msg  = []string{}
 	)
 
-	for _, v := range []string{"fatalf", "fatal", "fatalln", "panicf", "panic", "panicln"} {
+	for _, v := range []string{
+		"fatalf",
+		"fatal",
+		"fatalln",
+		"panicf",
+		"panic",
+		"panicln",
+		"with-fields-fatalf",
+		"with-fields-fatal",
+		"with-fields-fatalln",
+		"with-fields-panicf",
+		"with-fields-panic",
+		"with-fields-panicln",
+	} {
 		wg.Add(1)
 		go func(v string) {
 			defer wg.Done()
