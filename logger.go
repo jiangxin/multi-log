@@ -48,11 +48,39 @@ var (
 	o       Options
 )
 
+func openLogfile(logFile string) (*os.File, error) {
+	var err error
+
+	if logFile != "" {
+		logFile, err = path.Abs(logFile)
+		if err != nil {
+			return nil, fmt.Errorf("fail to resolve logfile: %s", err)
+		}
+	}
+
+	dirname := filepath.Dir(logFile)
+	if _, err := os.Stat(dirname); err != nil && os.IsNotExist(err) {
+		err = os.MkdirAll(dirname, 0755)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if o.LogRotateSize > 0 {
+		if finfo, err := os.Stat(logFile); err == nil && finfo.Size() > o.LogRotateSize {
+			// Save 1 backup
+			os.Rename(logFile, logFile+".1")
+			return os.OpenFile(logFile, os.O_CREATE|os.O_RDWR|os.O_TRUNC|os.O_APPEND, 0755)
+		}
+	}
+
+	return os.OpenFile(logFile, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
+}
+
 // Init must run first to initialize logger
 func Init(options Options) {
 	var (
 		logLevel   logrus.Level
-		logFile    string
 		err        error
 		noExitFunc = func(code int) { return }
 	)
@@ -95,12 +123,6 @@ func Init(options Options) {
 	}
 
 	if o.LogFile != "" {
-		logFile, err = path.Abs(o.LogFile)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: fail to resolve logfile: %s", err)
-		}
-	}
-	if logFile != "" {
 		logLevel = logrus.ErrorLevel
 		if o.LogLevel != "" {
 			logLevel, err = logrus.ParseLevel(o.LogLevel)
@@ -109,17 +131,9 @@ func Init(options Options) {
 			}
 		}
 
-		dirname := filepath.Dir(logFile)
-		if _, err = os.Stat(dirname); err != nil && os.IsNotExist(err) {
-			err = os.MkdirAll(dirname, 0755)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "ERROR: cannot create dir %s for logging\n", dirname)
-			}
-		}
-
-		file, err := os.OpenFile(logFile, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
+		file, err := openLogfile(o.LogFile)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: cannot open %s for logging\n", logFile)
+			fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
 		} else {
 			mLogger.FileLogger = &logrus.Logger{
 				Out: file,
