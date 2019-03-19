@@ -70,11 +70,11 @@ func openLogfile(logFile string) (*os.File, error) {
 		if finfo, err := os.Stat(logFile); err == nil && finfo.Size() > o.LogRotateSize {
 			// Save 1 backup
 			os.Rename(logFile, logFile+".1")
-			return os.OpenFile(logFile, os.O_CREATE|os.O_RDWR|os.O_TRUNC|os.O_APPEND, 0755)
+			return os.OpenFile(logFile, os.O_CREATE|os.O_RDWR|os.O_TRUNC|os.O_APPEND, 0644)
 		}
 	}
 
-	return os.OpenFile(logFile, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
+	return os.OpenFile(logFile, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0644)
 }
 
 // Init must run first to initialize logger
