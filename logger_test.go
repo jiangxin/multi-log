@@ -421,7 +421,7 @@ FATA[<time>]: fatal # 7
 	assert.Equal(expect, filterTime(string(data)))
 }
 
-func TestFatalPanic(t *testing.T) {
+func TestFatal(t *testing.T) {
 	var (
 		assert = assert.New(t)
 		err    error
@@ -455,24 +455,12 @@ func TestFatalPanic(t *testing.T) {
 			Fatal("called ", env)
 		case "fatalln":
 			Fatalln("called", env)
-		case "panicf":
-			Panicf("called %s", env)
-		case "panic":
-			Panic("called ", env)
-		case "panicln":
-			Panicln("called", env)
 		case "with-fields-fatalf":
 			wfLogger.Fatalf("called %s", env)
 		case "with-fields-fatal":
 			wfLogger.Fatal("called ", env)
 		case "with-fields-fatalln":
 			wfLogger.Fatalln("called", env)
-		case "with-fields-panicf":
-			wfLogger.Panicf("called %s", env)
-		case "with-fields-panic":
-			wfLogger.Panic("called ", env)
-		case "with-fields-panicln":
-			wfLogger.Panicln("called", env)
 		}
 		return
 	}
@@ -487,20 +475,14 @@ func TestFatalPanic(t *testing.T) {
 		"fatalf",
 		"fatal",
 		"fatalln",
-		"panicf",
-		"panic",
-		"panicln",
 		"with-fields-fatalf",
 		"with-fields-fatal",
 		"with-fields-fatalln",
-		"with-fields-panicf",
-		"with-fields-panic",
-		"with-fields-panicln",
 	} {
 		wg.Add(1)
 		go func(v string) {
 			defer wg.Done()
-			args := []string{"go", "test", "-test.run=TestFatalPanic"}
+			args := []string{"go", "test", "-test.run=TestFatal"}
 			cmd := exec.Command(args[0], args[1:]...)
 			env := fmt.Sprintf("TEST_LOGGER_CRASH=%s", v)
 			cmd.Env = append(os.Environ(), env)
@@ -533,4 +515,47 @@ func TestFatalPanic(t *testing.T) {
 	if len(msg) > 0 {
 		t.Fatal(strings.Join(msg, "\n"))
 	}
+}
+
+func TestPanic(t *testing.T) {
+	var (
+		assert = assert.New(t)
+	)
+
+	o := Options{
+		Verbose:  4,
+		LogLevel: "warning",
+		LogFile:  "",
+	}
+
+	Init(o)
+
+	wfLogger := WithFields(map[string]interface{}{
+		"size":   "10MB",
+		"period": 2 * time.Minute,
+	})
+
+	assert.Panics(func() {
+		Panicf("called %s", "panicf")
+	})
+
+	assert.Panics(func() {
+		Panic("called ", "panic")
+	})
+
+	assert.Panics(func() {
+		Panicln("called", "panicln")
+	})
+
+	assert.Panics(func() {
+		wfLogger.Panicf("called %s", "panicf")
+	})
+
+	assert.Panics(func() {
+		wfLogger.Panic("called ", "panic")
+	})
+
+	assert.Panics(func() {
+		wfLogger.Panicln("called", "panicln")
+	})
 }
