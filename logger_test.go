@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jiangxin/multi-log/path"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -140,9 +141,12 @@ func TestRelativeLoggerFile(t *testing.T) {
 		os.RemoveAll(dir)
 	}(tmpdir)
 
-	home = os.Getenv("HOME")
-	os.Setenv("HOME", tmpdir)
-	defer os.Setenv("HOME", home)
+	home, err = path.HomeDir()
+	assert.Nil(err)
+	path.SetHome(tmpdir)
+	defer func(home string) {
+		path.SetHome(home)
+	}(home)
 
 	tmpfile := "~/log/log.txt"
 

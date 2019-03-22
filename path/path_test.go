@@ -1,9 +1,11 @@
 package path
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,59 +28,70 @@ func TestExpendHome(t *testing.T) {
 		os.RemoveAll(dir)
 	}(tmpdir)
 
-	home = os.Getenv("HOME")
+	home, err = HomeDir()
+	assert.Nil(err)
+	defer func(home string) {
+		SetHome(home)
+	}(home)
 
-	os.Unsetenv("HOME")
-	name, err = homeDir()
+	UnsetHome()
+	name, err = HomeDir()
 	assert.NotNil(err)
 	assert.Equal("", name)
 
-	name, err = expendHome("")
+	name, err = ExpendHome("")
 	assert.NotNil(err)
 	assert.Equal("", name)
 
-	os.Setenv("HOME", tmpdir)
+	SetHome(tmpdir)
 
-	name, err = homeDir()
+	name, err = HomeDir()
 	assert.Equal(tmpdir, name)
 
-	name, err = expendHome("")
+	name, err = ExpendHome("")
 	assert.Nil(err)
 	assert.Equal(tmpdir, name)
 
-	name, err = expendHome("a")
+	name, err = ExpendHome("a")
 	assert.Nil(err)
 	assert.Equal(filepath.Join(tmpdir, "a"), name)
 
-	name, err = expendHome("~a")
+	name, err = ExpendHome("~a")
 	assert.Nil(err)
 	assert.Equal(filepath.Join(tmpdir, "~a"), name)
 
-	name, err = expendHome("~")
+	name, err = ExpendHome("~")
 	assert.Nil(err)
 	assert.Equal(tmpdir, name)
 
-	name, err = expendHome("~/")
+	name, err = ExpendHome("~/")
 	assert.Nil(err)
 	assert.Equal(tmpdir, name)
 
-	name, err = expendHome("~/a")
+	name, err = ExpendHome("~/a")
 	assert.Nil(err)
 	assert.Equal(filepath.Join(tmpdir, "a"), name)
 
-	name, err = expendHome("ab")
+	name, err = ExpendHome("ab")
 	assert.Nil(err)
 	assert.Equal(filepath.Join(tmpdir, "ab"), name)
 
-	name, err = expendHome("/")
+	inputdir := "/"
+	if runtime.GOOS == "windows" {
+		inputdir = "c:\\"
+	}
+	name, err = ExpendHome(inputdir)
 	assert.Nil(err)
-	assert.Equal("/", name)
+	assert.Equal(inputdir, name)
 
-	name, err = expendHome("/a")
+	inputdir = "/a"
+	if runtime.GOOS == "windows" {
+		inputdir = "c:\\a"
+	}
+	name, err = ExpendHome(inputdir)
 	assert.Nil(err)
-	assert.Equal("/a", name)
+	assert.Equal(inputdir, name)
 
-	os.Setenv("HOME", home)
 }
 
 func TestAbs(t *testing.T) {
@@ -98,18 +111,23 @@ func TestAbs(t *testing.T) {
 		os.RemoveAll(dir)
 	}(tmpdir)
 
-	home = os.Getenv("HOME")
+	home, err = HomeDir()
+	assert.Nil(err)
+	defer func(home string) {
+		SetHome(home)
+	}(home)
 
-	os.Unsetenv("HOME")
+	UnsetHome()
 	name, err = Abs("~/")
 	assert.NotNil(err)
 	assert.Equal("", name)
 
-	os.Setenv("HOME", tmpdir)
-	cwd, _ := os.Getwd()
+	SetHome(tmpdir)
+	cwd, err := os.Getwd()
+	assert.Nil(err)
 
 	name, err = Abs("")
-	assert.Nil(err)
+	assert.Nil(err, fmt.Sprintf("err should be nil, but got: %s", err))
 	assert.Equal(cwd, name)
 
 	name, err = Abs("a")
@@ -136,15 +154,21 @@ func TestAbs(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(filepath.Join(cwd, "ab"), name)
 
-	name, err = Abs("/")
+	inputdir := "/"
+	if runtime.GOOS == "windows" {
+		inputdir = "c:\\"
+	}
+	name, err = Abs(inputdir)
 	assert.Nil(err)
-	assert.Equal("/", name)
+	assert.Equal(inputdir, name)
 
-	name, err = Abs("/a")
+	inputdir = "/a"
+	if runtime.GOOS == "windows" {
+		inputdir = "c:\\a"
+	}
+	name, err = Abs(inputdir)
 	assert.Nil(err)
-	assert.Equal("/a", name)
-
-	os.Setenv("HOME", home)
+	assert.Equal(inputdir, name)
 }
 
 func TestAbsJoin(t *testing.T) {
@@ -164,10 +188,18 @@ func TestAbsJoin(t *testing.T) {
 		os.RemoveAll(dir)
 	}(tmpdir)
 
-	home = os.Getenv("HOME")
-	os.Setenv("HOME", tmpdir)
+	home, err = HomeDir()
+	assert.Nil(err)
+	defer func(home string) {
+		SetHome(home)
+	}(home)
+
+	SetHome(tmpdir)
 
 	cwd := "/some/dir"
+	if runtime.GOOS == "windows" {
+		cwd = "c:\\some\\dir"
+	}
 
 	name, err = AbsJoin(cwd, "")
 	assert.Nil(err)
@@ -197,13 +229,19 @@ func TestAbsJoin(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(filepath.Join(cwd, "ab"), name)
 
-	name, err = AbsJoin(cwd, "/")
+	inputdir := "/"
+	if runtime.GOOS == "windows" {
+		inputdir = "c:\\"
+	}
+	name, err = AbsJoin(cwd, inputdir)
 	assert.Nil(err)
-	assert.Equal("/", name)
+	assert.Equal(inputdir, name)
 
-	name, err = AbsJoin(cwd, "/a")
+	inputdir = "/a"
+	if runtime.GOOS == "windows" {
+		inputdir = "c:\\a"
+	}
+	name, err = AbsJoin(cwd, inputdir)
 	assert.Nil(err)
-	assert.Equal("/a", name)
-
-	os.Setenv("HOME", home)
+	assert.Equal(inputdir, name)
 }
