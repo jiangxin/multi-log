@@ -23,7 +23,7 @@ func testingExitFunc(code int) {
 
 func filterTime(data string) string {
 	res := []*regexp.Regexp{
-		regexp.MustCompile(`(\d{4}-\d{1,2}-\d{1,2}T\d{2}:\d{2}:\d{2}[\d:+-]*)`),
+		regexp.MustCompile(`(\d{4}-\d{1,2}-\d{1,2}T\d{2}:\d{2}:\d{2}[\d:+-]*Z?)`),
 	}
 	for _, re := range res {
 		data = re.ReplaceAllString(data, "<time>")
