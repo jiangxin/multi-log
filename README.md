@@ -1,4 +1,7 @@
-# Multi-log
+Multi-log
+=========
+
+[![Travis Build Status](https://travis-ci.org/jiangxin/multi-log.svg?branch=master)](https://travis-ci.org/jiangxin/multi-log)
 
 Multi-log is based on logrus, and provides logging in two directions at the same time.
 One for logging on console and one for file logging.
