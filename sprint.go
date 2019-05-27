@@ -145,3 +145,93 @@ func Sprintf(format string, args ...interface{}) string {
 func Sprintln(args ...interface{}) string {
 	return sprint("NOTE", fmt.Sprintln(args...))
 }
+
+// Stracef is sprint with TraceLevel
+func Stracef(format string, args ...interface{}) string {
+	return sprint("trace", fmt.Sprintf(format, args...))
+}
+
+// Sdebugf is sprint with DebugLevel
+func Sdebugf(format string, args ...interface{}) string {
+	return sprint("debug", fmt.Sprintf(format, args...))
+}
+
+// Sinfof is sprint with InfoLevel
+func Sinfof(format string, args ...interface{}) string {
+	return sprint("info", fmt.Sprintf(format, args...))
+}
+
+// Swarnf is sprint with WarnLevel
+func Swarnf(format string, args ...interface{}) string {
+	return sprint("warn", fmt.Sprintf(format, args...))
+}
+
+// Swarningf is alias of Warnf
+func Swarningf(format string, args ...interface{}) string {
+	return sprint("warn", fmt.Sprintf(format, args...))
+}
+
+// Serrorf is sprint with ErrorLevel
+func Serrorf(format string, args ...interface{}) string {
+	return sprint("error", fmt.Sprintf(format, args...))
+}
+
+// Strace is sprint with TraceLevel
+func Strace(args ...interface{}) string {
+	return sprint("trace", args...)
+}
+
+// Sdebug is sprint with DebugLevel
+func Sdebug(args ...interface{}) string {
+	return sprint("debug", args...)
+}
+
+// Sinfo is sprint with InfoLevel
+func Sinfo(args ...interface{}) string {
+	return sprint("info", args...)
+}
+
+// Swarn is sprint with WarnLevel
+func Swarn(args ...interface{}) string {
+	return sprint("warn", args...)
+}
+
+// Swarning is alias of Warn
+func Swarning(args ...interface{}) string {
+	return sprint("warn", args...)
+}
+
+// Serror is sprint with ErrorLevel
+func Serror(args ...interface{}) string {
+	return sprint("error", args...)
+}
+
+// Straceln is sprint with TraceLevel
+func Straceln(args ...interface{}) string {
+	return sprint("trace", fmt.Sprintln(args...))
+}
+
+// Sdebugln is sprint with DebugLevel
+func Sdebugln(args ...interface{}) string {
+	return sprint("debug", fmt.Sprintln(args...))
+}
+
+// Sinfoln is sprint with InfoLevel
+func Sinfoln(args ...interface{}) string {
+	return sprint("info", fmt.Sprintln(args...))
+}
+
+// Swarnln is sprint with WarnLevel
+func Swarnln(args ...interface{}) string {
+	return sprint("warn", fmt.Sprintln(args...))
+}
+
+// Swarningln is alias of Swarnln
+func Swarningln(args ...interface{}) string {
+	return sprint("warn", fmt.Sprintln(args...))
+}
+
+// Serrorln is sprint with ErrorLevel
+func Serrorln(args ...interface{}) string {
+	return sprint("error", fmt.Sprintln(args...))
+}

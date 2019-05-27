@@ -135,3 +135,133 @@ func TestNoteQuiet(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(expect, filterTime(string(data)))
 }
+
+func TestSprintMethods1(t *testing.T) {
+	var (
+		assert = assert.New(t)
+		buffer bytes.Buffer
+		actual string
+		expect string
+	)
+
+	o := Options{
+		Verbose:  0,
+		LogLevel: "warn",
+		LogFile:  "",
+		stderr:   &buffer,
+	}
+	Init(o)
+
+	actual = Stracef("#%d", 1)
+	expect = ""
+	assert.Equal(expect, actual)
+
+	actual = Sdebugf("#%d", 1)
+	expect = ""
+	assert.Equal(expect, actual)
+
+	actual = Sinfof("#%d", 1)
+	expect = ""
+	assert.Equal(expect, actual)
+
+	actual = Swarnf("#%d", 1)
+	expect = "WARN: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Swarningf("#%d", 1)
+	expect = "WARN: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Serrorf("#%d", 1)
+	expect = "ERROR: #1\n"
+	assert.Equal(expect, actual)
+}
+
+func TestSprintMethodsFull(t *testing.T) {
+	var (
+		assert = assert.New(t)
+		buffer bytes.Buffer
+		actual string
+		expect string
+	)
+
+	o := Options{
+		Verbose:  5,
+		LogLevel: "warn",
+		LogFile:  "",
+		stderr:   &buffer,
+	}
+	Init(o)
+
+	actual = Stracef("#%d", 1)
+	expect = "TRACE: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Sdebugf("#%d", 1)
+	expect = "DEBUG: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Sinfof("#%d", 1)
+	expect = "INFO: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Swarnf("#%d", 1)
+	expect = "WARN: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Swarningf("#%d", 1)
+	expect = "WARN: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Serrorf("#%d", 1)
+	expect = "ERROR: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Strace("#", 1)
+	expect = "TRACE: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Sdebug("#", 1)
+	expect = "DEBUG: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Sinfo("#", 1)
+	expect = "INFO: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Swarn("#", 1)
+	expect = "WARN: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Swarning("#", 1)
+	expect = "WARN: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Serror("#", 1)
+	expect = "ERROR: #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Straceln("#", 1)
+	expect = "TRACE: # 1\n"
+	assert.Equal(expect, actual)
+
+	actual = Sdebugln("#", 1)
+	expect = "DEBUG: # 1\n"
+	assert.Equal(expect, actual)
+
+	actual = Sinfoln("#", 1)
+	expect = "INFO: # 1\n"
+	assert.Equal(expect, actual)
+
+	actual = Swarnln("#", 1)
+	expect = "WARN: # 1\n"
+	assert.Equal(expect, actual)
+
+	actual = Swarningln("#", 1)
+	expect = "WARN: # 1\n"
+	assert.Equal(expect, actual)
+
+	actual = Serrorln("#", 1)
+	expect = "ERROR: # 1\n"
+	assert.Equal(expect, actual)
+}
