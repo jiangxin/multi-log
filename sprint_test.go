@@ -68,6 +68,37 @@ NOTE: note # 6` + "\n"
 	assert.Equal(expect, filterTime(string(data)))
 }
 
+func TestSnoteMethods(t *testing.T) {
+	var (
+		actual, expect string
+		assert         = assert.New(t)
+	)
+
+	actual = Snotef("note #%d", 1)
+	expect = "NOTE: note #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Snote("note #", 2)
+	expect = "NOTE: note #2\n"
+	assert.Equal(expect, actual)
+
+	actual = Snoteln("note #", 3)
+	expect = "NOTE: note # 3\n"
+	assert.Equal(expect, actual)
+
+	actual = Sprintf("note #%d", 1)
+	expect = "NOTE: note #1\n"
+	assert.Equal(expect, actual)
+
+	actual = Sprint("note #", 2)
+	expect = "NOTE: note #2\n"
+	assert.Equal(expect, actual)
+
+	actual = Sprintln("note #", 3)
+	expect = "NOTE: note # 3\n"
+	assert.Equal(expect, actual)
+}
+
 func TestNoteQuiet(t *testing.T) {
 	var (
 		assert = assert.New(t)
